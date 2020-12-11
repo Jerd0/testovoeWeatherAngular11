@@ -1,0 +1,16 @@
+<div *ngIf="error$ | async as error">
+  <h1 class="error-message">
+    <mat-icon>error</mat-icon>
+    {{ error }}</h1>
+</div>
+<div *ngIf="data$ | async as data">
+  <div class="page">
+    <app-day-weather *ngIf="data.pastCondtitions.day; else date" [value]="data.pastCondtitions"></app-day-weather>
+    <app-day-weather *ngIf="data.currentConditions.day" [value]="data.currentConditions"></app-day-weather>
+    <app-day-weather *ngIf="data.futureCondtitions.day; else date" [value]="data.futureCondtitions"></app-day-weather>
+    <ng-template #date>
+      <div>Эта дата вне диапазона</div>
+    </ng-template>
+  </div>
+</div>
+<button class="page__button" (click)="update()">Следующие 3 дня</button>

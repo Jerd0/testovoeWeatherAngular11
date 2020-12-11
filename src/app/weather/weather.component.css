@@ -1,0 +1,24 @@
+.page {
+  padding: 60px 47px 13px;
+  font-family: Roboto, sans-serif;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-column-gap: 30px;
+  margin-bottom: 13px;
+}
+
+.page__button {
+  width: 100%;
+  font-size: 36px;
+  line-height: 42px;
+  color: #FFFFFF;
+  background: #3684F9;
+  border-radius: 5px;
+}
+
+.error-message {
+  background: red;
+  color: white;
+  font-size: 2em;
+  text-align: center;
+}
