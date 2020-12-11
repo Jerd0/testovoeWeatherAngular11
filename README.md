@@ -28,7 +28,7 @@ https://www.figma.com/file/VQuw3mm2nXPdCQGVQHgbuN/Untitled?node-id=0%3A1
 
 Для деплоя использовался Heroku
 
-#Файлы требуемые для Heroku вы можете посмотреть в коммите по ссылке
+# Файлы требуемые для Heroku вы можете посмотреть в коммите по ссылке
 https://github.com/Jerd0/testovoeWeatherAngular11/commit/d9f1b90b5d87e4432ee299a01759011820e5b64f
 
 # Для просмотра в сети интернет перейдите по ссылке
