@@ -1,27 +1,35 @@
 # TestovoeAngu11
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 11.0.4.
+Вторая версия сделанная на Angular11
 
-## Development server
+Данное приложение показывает погоду в Варшаве.
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
+# Дизайн
+https://www.figma.com/file/VQuw3mm2nXPdCQGVQHgbuN/Untitled?node-id=0%3A1
 
-## Code scaffolding
+# TЗv1
+Сделать приложение прогноза погоды на 7 дней, начиная от ближайшего прошедшего понедельника.
+Открытие подробной информации по каждому дню должно изменять URL. URL для каждого дня строится по маске:  spa.ru/2020/02/02 - то есть мы открываем прогноз погоды на второе февраля 2020 и показываем всю неделю, в которую входила эта дата. (edited) 
+# ТЗv2
+Ввиду проблем с API были внесены правки заказчика
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+Поступим следующим образом: openweathermap.org на бесплатном аккаунте дает возможность посмотреть прогноз на 7 дней вперед и 5 дней назад.
+Так что выводить нужно не 7 карточек с прогнозом, а только 3: вчера, сегодня (эту карточку по центру) и завтра.
+Все остальное - остается точно так же как и было описано. Ввод даты будет открывать прогноз по конкретному дню (карточка слева - день назад, карточка справа - день вперед). Просто при тестах мы сами будем следить за тем, чтобы не выйти за ограничения
+8:31
+А в идеале - тебе нужно будет добавить обработку выхода за пределы ограничений. То есть если API не даст данных - то сообщить об этом и показать ближайший возможный день (но это доп. задание, которое можно не делать)
 
-## Build
+Для запуска локально используйте
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
+### npm install
 
-## Running unit tests
+### npm start
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
 
-## Running end-to-end tests
+Для деплоя использовался Heroku
 
-Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
+#Файлы требуемые для Heroku вы можете посмотреть в коммите по ссылке
+https://github.com/Jerd0/testovoeWeatherAngular11/commit/d9f1b90b5d87e4432ee299a01759011820e5b64f
 
-## Further help
-
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+# Для просмотра в сети интернет перейдите по ссылке
+https://testovoeweather.herokuapp.com/
