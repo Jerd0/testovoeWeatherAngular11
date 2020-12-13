@@ -23,7 +23,7 @@ export class WeatherEffects {
   loadCartsMiddle$ = this.actions$
     .pipe(
       ofType<LoadDay>(DateActionTypes.LoadDay),
-      mergeMap(() => this.weatherService.getWeatherFromPast()
+      mergeMap((action) => this.weatherService.getWeatherFromPast(action.payload.urlDate)
         .pipe(
           map(weather => {
             return (new LoadWeather({weatherData: weather}));
@@ -35,7 +35,7 @@ export class WeatherEffects {
   loadCartsLeft$ = this.actions$
     .pipe(
       ofType<LoadDay>(DateActionTypes.LoadDayLeft),
-      mergeMap(() => this.weatherService.getWeatherFromPustLeft()
+      mergeMap((action) => this.weatherService.getWeatherFromPustLeft(action.payload.urlDate)
         .pipe(
           map(weather => {
             return (new LoadWeatherLeft({weatherData: weather}));
@@ -47,7 +47,7 @@ export class WeatherEffects {
   loadCartsRight$ = this.actions$
     .pipe(
       ofType<LoadDay>(DateActionTypes.LoadDayRight),
-      mergeMap(() => this.weatherService.getWeatherFromPustRight()
+      mergeMap((action) => this.weatherService.getWeatherFromPustRight(action.payload.urlDate)
         .pipe(
           map(weather => {
             return (new LoadWeatherRight({weatherData: weather}));

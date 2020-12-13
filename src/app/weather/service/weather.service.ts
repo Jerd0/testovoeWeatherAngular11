@@ -1,7 +1,6 @@
 import {WeatherData} from '../../models/weather-data/weather-data';
 import {Observable, throwError} from 'rxjs';
 import {catchError, map} from 'rxjs/operators';
-import {dateInUrl} from '../weather.component';
 import {Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {UrlData} from '../../models/url-data/url-data';
@@ -17,8 +16,8 @@ export class WeatherService {
   constructor(private http: HttpClient) {
   }
 
-  getWeatherFromPast(): Observable<WeatherData> {
-    return this.getPastData().pipe(
+  getWeatherFromPast(urlData: UrlData): Observable<WeatherData> {
+    return this.getPastData(urlData).pipe(
       map((value) => {
         this.weatherData.currentConditions.day = value.current?.dt;
         this.weatherData.currentConditions.temp = value.current?.temp;
@@ -32,8 +31,8 @@ export class WeatherService {
     );
   }
 
-  getWeatherFromPustRight(): Observable<WeatherData> {
-    return this.getPastDataAfter().pipe(
+  getWeatherFromPustRight(urlData: UrlData): Observable<WeatherData> {
+    return this.getPastDataAfter(urlData).pipe(
       map((value) => {
         this.weatherData.futureCondtitions.day = value.current?.dt;
         this.weatherData.futureCondtitions.temp = value.current?.temp;
@@ -47,8 +46,8 @@ export class WeatherService {
     );
   }
 
-  getWeatherFromPustLeft(): Observable<WeatherData> {
-    return this.getPastDataBefore().pipe(
+  getWeatherFromPustLeft(urlData: UrlData): Observable<WeatherData> {
+    return this.getPastDataBefore(urlData).pipe(
       map((value) => {
         this.weatherData.pastCondtitions.day = value.current?.dt;
         this.weatherData.pastCondtitions.temp = value.current?.temp;
@@ -62,98 +61,109 @@ export class WeatherService {
     );
   }
 
-  getWeatherFromFutureRight(urlDate): Observable<WeatherData> {
+  getWeatherFromFutureRight(urlDate: UrlData): Observable<WeatherData> {
     return this.getCurrentWeatherOpenWeatherMapAPI(urlDate).pipe(
       map((value => {
-        this.weatherData.futureCondtitions.day = value.daily[(dateInUrl.getDate() - this.currentDay.getDate() + 1)]?.dt;
-        this.weatherData.futureCondtitions.temp = value.daily[(dateInUrl.getDate() - this.currentDay.getDate() + 1)]?.temp.day;
-        this.weatherData.futureCondtitions.pressure = value.daily[(dateInUrl.getDate() - this.currentDay.getDate() + 1)]?.pressure;
+        this.weatherData.futureCondtitions.day = value.daily[(urlDate.currentDate.getDate() - this.currentDay.getDate() + 1)]?.dt;
+        this.weatherData.futureCondtitions.temp = value.daily[(urlDate.currentDate.getDate() - this.currentDay.getDate() + 1)]?.temp.day;
         // tslint:disable-next-line:max-line-length
-        this.weatherData.futureCondtitions.windDirection = this.getWindDirectionFromDegreeAngle(value.daily[(dateInUrl.getDate() - this.currentDay.getDate() + 1)]?.wind_deg);
-        this.weatherData.futureCondtitions.windSpeed = value.daily[(dateInUrl.getDate() - this.currentDay.getDate() + 1)]?.wind_speed;
-        this.weatherData.futureCondtitions.clouds = value.daily[(dateInUrl.getDate() - this.currentDay.getDate() + 1)]?.clouds;
-        this.weatherData.futureCondtitions.humidity = value.daily[(dateInUrl.getDate() - this.currentDay.getDate() + 1)]?.humidity;
+        this.weatherData.futureCondtitions.pressure = value.daily[(urlDate.currentDate.getDate() - this.currentDay.getDate() + 1)]?.pressure;
+        // tslint:disable-next-line:max-line-length
+        this.weatherData.futureCondtitions.windDirection = this.getWindDirectionFromDegreeAngle(value.daily[(urlDate.currentDate.getDate() - this.currentDay.getDate() + 1)]?.wind_deg);
+        // tslint:disable-next-line:max-line-length
+        this.weatherData.futureCondtitions.windSpeed = value.daily[(urlDate.currentDate.getDate() - this.currentDay.getDate() + 1)]?.wind_speed;
+        this.weatherData.futureCondtitions.clouds = value.daily[(urlDate.currentDate.getDate() - this.currentDay.getDate() + 1)]?.clouds;
+        // tslint:disable-next-line:max-line-length
+        this.weatherData.futureCondtitions.humidity = value.daily[(urlDate.currentDate.getDate() - this.currentDay.getDate() + 1)]?.humidity;
         return this.weatherData;
       }))
     );
   }
 
-  getWeatherFromFuture(urlDate): Observable<WeatherData> {
+  getWeatherFromFuture(urlDate: UrlData): Observable<WeatherData> {
     return this.getCurrentWeatherOpenWeatherMapAPI(urlDate).pipe(
       map((value => {
-        this.weatherData.pastCondtitions.day = value.daily[(dateInUrl.getDate() - this.currentDay.getDate() - 1)]?.dt;
-        this.weatherData.pastCondtitions.temp = value.daily[(dateInUrl.getDate() - this.currentDay.getDate() - 1)]?.temp.day;
-        this.weatherData.pastCondtitions.pressure = value.daily[(dateInUrl.getDate() - this.currentDay.getDate() - 1)]?.pressure;
+        this.weatherData.pastCondtitions.day = value.daily[(urlDate.currentDate.getDate() - this.currentDay.getDate() - 1)]?.dt;
+        this.weatherData.pastCondtitions.temp = value.daily[(urlDate.currentDate.getDate() - this.currentDay.getDate() - 1)]?.temp.day;
+        this.weatherData.pastCondtitions.pressure = value.daily[(urlDate.currentDate.getDate() - this.currentDay.getDate() - 1)]?.pressure;
         // tslint:disable-next-line:max-line-length
-        this.weatherData.pastCondtitions.windDirection = this.getWindDirectionFromDegreeAngle(value.daily[(dateInUrl.getDate() - this.currentDay.getDate() - 1)]?.wind_deg);
-        this.weatherData.pastCondtitions.windSpeed = value.daily[(dateInUrl.getDate() - this.currentDay.getDate() - 1)]?.wind_speed;
-        this.weatherData.pastCondtitions.clouds = value.daily[(dateInUrl.getDate() - this.currentDay.getDate() - 1)]?.clouds;
-        this.weatherData.pastCondtitions.humidity = value.daily[(dateInUrl.getDate() - this.currentDay.getDate() - 1)]?.humidity;
-        this.weatherData.currentConditions.day = value.daily[(dateInUrl.getDate() - this.currentDay.getDate())]?.dt;
-        this.weatherData.currentConditions.temp = value.daily[(dateInUrl.getDate() - this.currentDay.getDate())]?.temp.day;
-        this.weatherData.currentConditions.pressure = value.daily[(dateInUrl.getDate() - this.currentDay.getDate())]?.pressure;
+        this.weatherData.pastCondtitions.windDirection = this.getWindDirectionFromDegreeAngle(value.daily[(urlDate.currentDate.getDate() - this.currentDay.getDate() - 1)]?.wind_deg);
         // tslint:disable-next-line:max-line-length
-        this.weatherData.currentConditions.windDirection = this.getWindDirectionFromDegreeAngle(value.daily[(dateInUrl.getDate() - this.currentDay.getDate())]?.wind_deg);
-        this.weatherData.currentConditions.windSpeed = value.daily[(dateInUrl.getDate() - this.currentDay.getDate())]?.wind_speed;
-        this.weatherData.currentConditions.clouds = value.daily[(dateInUrl.getDate() - this.currentDay.getDate())]?.clouds;
-        this.weatherData.currentConditions.humidity = value.daily[(dateInUrl.getDate() - this.currentDay.getDate())]?.humidity;
-        this.weatherData.futureCondtitions.day = value.daily[(dateInUrl.getDate() - this.currentDay.getDate() + 1)]?.dt;
-        this.weatherData.futureCondtitions.temp = value.daily[(dateInUrl.getDate() - this.currentDay.getDate() + 1)]?.temp.day;
-        this.weatherData.futureCondtitions.pressure = value.daily[(dateInUrl.getDate() - this.currentDay.getDate() + 1)]?.pressure;
+        this.weatherData.pastCondtitions.windSpeed = value.daily[(urlDate.currentDate.getDate() - this.currentDay.getDate() - 1)]?.wind_speed;
+        this.weatherData.pastCondtitions.clouds = value.daily[(urlDate.currentDate.getDate() - this.currentDay.getDate() - 1)]?.clouds;
+        this.weatherData.pastCondtitions.humidity = value.daily[(urlDate.currentDate.getDate() - this.currentDay.getDate() - 1)]?.humidity;
+        this.weatherData.currentConditions.day = value.daily[(urlDate.currentDate.getDate() - this.currentDay.getDate())]?.dt;
+        this.weatherData.currentConditions.temp = value.daily[(urlDate.currentDate.getDate() - this.currentDay.getDate())]?.temp.day;
+        this.weatherData.currentConditions.pressure = value.daily[(urlDate.currentDate.getDate() - this.currentDay.getDate())]?.pressure;
         // tslint:disable-next-line:max-line-length
-        this.weatherData.futureCondtitions.windDirection = this.getWindDirectionFromDegreeAngle(value.daily[(dateInUrl.getDate() - this.currentDay.getDate() + 1)]?.wind_deg);
-        this.weatherData.futureCondtitions.windSpeed = value.daily[(dateInUrl.getDate() - this.currentDay.getDate() + 1)]?.wind_speed;
-        this.weatherData.futureCondtitions.clouds = value.daily[(dateInUrl.getDate() - this.currentDay.getDate() + 1)]?.clouds;
-        this.weatherData.futureCondtitions.humidity = value.daily[(dateInUrl.getDate() - this.currentDay.getDate() + 1)]?.humidity;
+        this.weatherData.currentConditions.windDirection = this.getWindDirectionFromDegreeAngle(value.daily[(urlDate.currentDate.getDate() - this.currentDay.getDate())]?.wind_deg);
+        this.weatherData.currentConditions.windSpeed = value.daily[(urlDate.currentDate.getDate() - this.currentDay.getDate())]?.wind_speed;
+        this.weatherData.currentConditions.clouds = value.daily[(urlDate.currentDate.getDate() - this.currentDay.getDate())]?.clouds;
+        this.weatherData.currentConditions.humidity = value.daily[(urlDate.currentDate.getDate() - this.currentDay.getDate())]?.humidity;
+        this.weatherData.futureCondtitions.day = value.daily[(urlDate.currentDate.getDate() - this.currentDay.getDate() + 1)]?.dt;
+        this.weatherData.futureCondtitions.temp = value.daily[(urlDate.currentDate.getDate() - this.currentDay.getDate() + 1)]?.temp.day;
+        // tslint:disable-next-line:max-line-length
+        this.weatherData.futureCondtitions.pressure = value.daily[(urlDate.currentDate.getDate() - this.currentDay.getDate() + 1)]?.pressure;
+        // tslint:disable-next-line:max-line-length
+        this.weatherData.futureCondtitions.windDirection = this.getWindDirectionFromDegreeAngle(value.daily[(urlDate.currentDate.getDate() - this.currentDay.getDate() + 1)]?.wind_deg);
+        // tslint:disable-next-line:max-line-length
+        this.weatherData.futureCondtitions.windSpeed = value.daily[(urlDate.currentDate.getDate() - this.currentDay.getDate() + 1)]?.wind_speed;
+        this.weatherData.futureCondtitions.clouds = value.daily[(urlDate.currentDate.getDate() - this.currentDay.getDate() + 1)]?.clouds;
+        // tslint:disable-next-line:max-line-length
+        this.weatherData.futureCondtitions.humidity = value.daily[(urlDate.currentDate.getDate() - this.currentDay.getDate() + 1)]?.humidity;
         return this.weatherData;
       }))
     );
   }
 
 
-  getWeatherFromFutureMiddle(urlDate): Observable<WeatherData> {
+  getWeatherFromFutureMiddle(urlDate: UrlData): Observable<WeatherData> {
     return this.getCurrentWeatherOpenWeatherMapAPI(urlDate).pipe(
       map((value => {
-        this.weatherData.currentConditions.day = value.daily[(dateInUrl.getDate() - this.currentDay.getDate())]?.dt;
-        this.weatherData.currentConditions.temp = value.daily[(dateInUrl.getDate() - this.currentDay.getDate())]?.temp.day;
-        this.weatherData.currentConditions.pressure = value.daily[(dateInUrl.getDate() - this.currentDay.getDate())]?.pressure;
+        this.weatherData.currentConditions.day = value.daily[(urlDate.currentDate.getDate() - this.currentDay.getDate())]?.dt;
+        this.weatherData.currentConditions.temp = value.daily[(urlDate.currentDate.getDate() - this.currentDay.getDate())]?.temp.day;
+        this.weatherData.currentConditions.pressure = value.daily[(urlDate.currentDate.getDate() - this.currentDay.getDate())]?.pressure;
         // tslint:disable-next-line:max-line-length
-        this.weatherData.currentConditions.windDirection = this.getWindDirectionFromDegreeAngle(value.daily[(dateInUrl.getDate() - this.currentDay.getDate())]?.wind_deg);
-        this.weatherData.currentConditions.windSpeed = value.daily[(dateInUrl.getDate() - this.currentDay.getDate())]?.wind_speed;
-        this.weatherData.currentConditions.clouds = value.daily[(dateInUrl.getDate() - this.currentDay.getDate())]?.clouds;
-        this.weatherData.currentConditions.humidity = value.daily[(dateInUrl.getDate() - this.currentDay.getDate())]?.humidity;
-        this.weatherData.futureCondtitions.day = value.daily[(dateInUrl.getDate() - this.currentDay.getDate()) + 1]?.dt;
-        this.weatherData.futureCondtitions.temp = value.daily[(dateInUrl.getDate() - this.currentDay.getDate()) + 1]?.temp.day;
-        this.weatherData.futureCondtitions.pressure = value.daily[(dateInUrl.getDate() - this.currentDay.getDate()) + 1]?.pressure;
+        this.weatherData.currentConditions.windDirection = this.getWindDirectionFromDegreeAngle(value.daily[(urlDate.currentDate.getDate() - this.currentDay.getDate())]?.wind_deg);
+        this.weatherData.currentConditions.windSpeed = value.daily[(urlDate.currentDate.getDate() - this.currentDay.getDate())]?.wind_speed;
+        this.weatherData.currentConditions.clouds = value.daily[(urlDate.currentDate.getDate() - this.currentDay.getDate())]?.clouds;
+        this.weatherData.currentConditions.humidity = value.daily[(urlDate.currentDate.getDate() - this.currentDay.getDate())]?.humidity;
+        this.weatherData.futureCondtitions.day = value.daily[(urlDate.currentDate.getDate() - this.currentDay.getDate()) + 1]?.dt;
+        this.weatherData.futureCondtitions.temp = value.daily[(urlDate.currentDate.getDate() - this.currentDay.getDate()) + 1]?.temp.day;
         // tslint:disable-next-line:max-line-length
-        this.weatherData.futureCondtitions.windDirection = this.getWindDirectionFromDegreeAngle(value.daily[(dateInUrl.getDate() - this.currentDay.getDate()) + 1]?.wind_deg);
-        this.weatherData.futureCondtitions.windSpeed = value.daily[(dateInUrl.getDate() - this.currentDay.getDate()) + 1]?.wind_speed;
-        this.weatherData.futureCondtitions.clouds = value.daily[(dateInUrl.getDate() - this.currentDay.getDate()) + 1]?.clouds;
-        this.weatherData.futureCondtitions.humidity = value.daily[(dateInUrl.getDate() - this.currentDay.getDate()) + 1]?.humidity;
+        this.weatherData.futureCondtitions.pressure = value.daily[(urlDate.currentDate.getDate() - this.currentDay.getDate()) + 1]?.pressure;
+        // tslint:disable-next-line:max-line-length
+        this.weatherData.futureCondtitions.windDirection = this.getWindDirectionFromDegreeAngle(value.daily[(urlDate.currentDate.getDate() - this.currentDay.getDate()) + 1]?.wind_deg);
+        // tslint:disable-next-line:max-line-length
+        this.weatherData.futureCondtitions.windSpeed = value.daily[(urlDate.currentDate.getDate() - this.currentDay.getDate()) + 1]?.wind_speed;
+        this.weatherData.futureCondtitions.clouds = value.daily[(urlDate.currentDate.getDate() - this.currentDay.getDate()) + 1]?.clouds;
+        // tslint:disable-next-line:max-line-length
+        this.weatherData.futureCondtitions.humidity = value.daily[(urlDate.currentDate.getDate() - this.currentDay.getDate()) + 1]?.humidity;
         return this.weatherData;
       }))
     );
   }
 
-  getWeatherFromFutureLeft(urlDate): Observable<WeatherData> {
+  getWeatherFromFutureLeft(urlDate: UrlData): Observable<WeatherData> {
     return this.getCurrentWeatherOpenWeatherMapAPI(urlDate).pipe(
       map((value => {
-        this.weatherData.currentConditions.day = value.daily[(dateInUrl.getDate() - this.currentDay.getDate())]?.dt;
-        this.weatherData.currentConditions.temp = value.daily[(dateInUrl.getDate() - this.currentDay.getDate())]?.temp.day;
-        this.weatherData.currentConditions.pressure = value.daily[(dateInUrl.getDate() - this.currentDay.getDate())]?.pressure;
+        this.weatherData.currentConditions.day = value.daily[(urlDate.currentDate.getDate() - this.currentDay.getDate())]?.dt;
+        this.weatherData.currentConditions.temp = value.daily[(urlDate.currentDate.getDate() - this.currentDay.getDate())]?.temp.day;
+        this.weatherData.currentConditions.pressure = value.daily[(urlDate.currentDate.getDate() - this.currentDay.getDate())]?.pressure;
         // tslint:disable-next-line:max-line-length
-        this.weatherData.currentConditions.windDirection = this.getWindDirectionFromDegreeAngle(value.daily[(dateInUrl.getDate() - this.currentDay.getDate())]?.wind_deg);
-        this.weatherData.currentConditions.windSpeed = value.daily[(dateInUrl.getDate() - this.currentDay.getDate())]?.wind_speed;
-        this.weatherData.currentConditions.clouds = value.daily[(dateInUrl.getDate() - this.currentDay.getDate())]?.clouds;
-        this.weatherData.currentConditions.humidity = value.daily[(dateInUrl.getDate() - this.currentDay.getDate())]?.humidity;
-        this.weatherData.pastCondtitions.day = value.daily[(dateInUrl.getDate() - this.currentDay.getDate()) - 1]?.dt;
-        this.weatherData.pastCondtitions.temp = value.daily[((dateInUrl.getDate() - this.currentDay.getDate())) - 1].temp.day;
-        this.weatherData.pastCondtitions.pressure = value.daily[(dateInUrl.getDate() - this.currentDay.getDate()) - 1].pressure;
+        this.weatherData.currentConditions.windDirection = this.getWindDirectionFromDegreeAngle(value.daily[(urlDate.currentDate.getDate() - this.currentDay.getDate())]?.wind_deg);
+        this.weatherData.currentConditions.windSpeed = value.daily[(urlDate.currentDate.getDate() - this.currentDay.getDate())]?.wind_speed;
+        this.weatherData.currentConditions.clouds = value.daily[(urlDate.currentDate.getDate() - this.currentDay.getDate())]?.clouds;
+        this.weatherData.currentConditions.humidity = value.daily[(urlDate.currentDate.getDate() - this.currentDay.getDate())]?.humidity;
+        this.weatherData.pastCondtitions.day = value.daily[(urlDate.currentDate.getDate() - this.currentDay.getDate()) - 1]?.dt;
+        this.weatherData.pastCondtitions.temp = value.daily[((urlDate.currentDate.getDate() - this.currentDay.getDate())) - 1].temp.day;
+        this.weatherData.pastCondtitions.pressure = value.daily[(urlDate.currentDate.getDate() - this.currentDay.getDate()) - 1].pressure;
         // tslint:disable-next-line:max-line-length
-        this.weatherData.pastCondtitions.windDirection = this.getWindDirectionFromDegreeAngle(value.daily[(dateInUrl.getDate() - this.currentDay.getDate()) - 1].wind_deg);
-        this.weatherData.pastCondtitions.windSpeed = value.daily[(dateInUrl.getDate() - this.currentDay.getDate()) - 1].wind_speed;
-        this.weatherData.pastCondtitions.clouds = value.daily[(dateInUrl.getDate() - this.currentDay.getDate()) - 1].clouds;
-        this.weatherData.pastCondtitions.humidity = value.daily[(dateInUrl.getDate() - this.currentDay.getDate()) - 1].humidity;
+        this.weatherData.pastCondtitions.windDirection = this.getWindDirectionFromDegreeAngle(value.daily[(urlDate.currentDate.getDate() - this.currentDay.getDate()) - 1].wind_deg);
+        // tslint:disable-next-line:max-line-length
+        this.weatherData.pastCondtitions.windSpeed = value.daily[(urlDate.currentDate.getDate() - this.currentDay.getDate()) - 1].wind_speed;
+        this.weatherData.pastCondtitions.clouds = value.daily[(urlDate.currentDate.getDate() - this.currentDay.getDate()) - 1].clouds;
+        this.weatherData.pastCondtitions.humidity = value.daily[(urlDate.currentDate.getDate() - this.currentDay.getDate()) - 1].humidity;
         this.weatherData.futureCondtitions.day = undefined;
         this.weatherData.futureCondtitions.temp = undefined;
         this.weatherData.futureCondtitions.clouds = undefined;
@@ -180,10 +190,10 @@ export class WeatherService {
     return windDirection;
   }
 
-  getPastData(): Observable<any> {
+  getPastData(urlDate: UrlData): Observable<any> {
     const APIKey = environment.openWeatherMapAPIKey;
     // tslint:disable-next-line:max-line-length
-    const metadataURL = `https://api.openweathermap.org/data/2.5/onecall/timemachine?lat=51&lon=21&dt=${Math.floor(dateInUrl.getTime() / 1000)}&appid=${APIKey}`;
+    const metadataURL = `https://api.openweathermap.org/data/2.5/onecall/timemachine?lat=51&lon=21&dt=${Math.floor(urlDate.currentDate.getTime() / 1000)}&appid=${APIKey}`;
     return this.http.get(metadataURL)
       .pipe(
         catchError(({error}) => {
@@ -192,10 +202,10 @@ export class WeatherService {
       );
   }
 
-  getPastDataAfter(): Observable<any> {
+  getPastDataAfter(urlDate: UrlData): Observable<any> {
     const APIKey = environment.openWeatherMapAPIKey;
     // tslint:disable-next-line:max-line-length
-    const metadataURL = `https://api.openweathermap.org/data/2.5/onecall/timemachine?lat=51&lon=21&dt=${Math.floor((dateInUrl.getTime() + (24 * 60 * 60 * 1000)) / 1000)}&appid=${APIKey}`;
+    const metadataURL = `https://api.openweathermap.org/data/2.5/onecall/timemachine?lat=51&lon=21&dt=${Math.floor((urlDate.currentDate.getTime() + (24 * 60 * 60 * 1000)) / 1000)}&appid=${APIKey}`;
     return this.http.get(metadataURL)
       .pipe(
         catchError(({error}) => {
@@ -204,10 +214,10 @@ export class WeatherService {
       );
   }
 
-  getPastDataBefore(): Observable<any> {
+  getPastDataBefore(urlData: UrlData): Observable<any> {
     const APIKey = environment.openWeatherMapAPIKey;
     // tslint:disable-next-line:max-line-length
-    const metadataURL = `https://api.openweathermap.org/data/2.5/onecall/timemachine?lat=51&lon=21&dt=${Math.floor((dateInUrl.getTime() - (24 * 60 * 60 * 1000)) / 1000)}&appid=${APIKey}`;
+    const metadataURL = `https://api.openweathermap.org/data/2.5/onecall/timemachine?lat=51&lon=21&dt=${Math.floor((urlData.currentDate.getTime() - (24 * 60 * 60 * 1000)) / 1000)}&appid=${APIKey}`;
     return this.http.get(metadataURL)
       .pipe(
         catchError(({error}) => {

@@ -16,7 +16,6 @@ export class DataAction implements Action {
   type: string;
   payload: {
     urlData: UrlData,
-    date: number,
     error: string
   };
 }
@@ -40,7 +39,7 @@ export class LoadDayLeft implements Action {
 export class LoadDayRight implements Action {
   readonly type = DateActionTypes.LoadDayRight;
 
-  constructor(readonly payload: { urlData: UrlData }) {
+  constructor(readonly payload: { urlDate: UrlData }) {
 
   }
 }
